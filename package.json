@@ -1,0 +1,8 @@
+{
+  "name": "sql-parser-js",
+  "version": "0.0.1",
+  "description": "A sql parser for JavaScript.",
+  "main": "index.js",
+  "author": "joe-re <joe.tialtngo@gmail.com>",
+  "license": "MIT"
+}
