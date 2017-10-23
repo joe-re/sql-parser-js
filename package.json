@@ -4,5 +4,8 @@
   "description": "A sql parser for JavaScript.",
   "main": "index.js",
   "author": "joe-re <joe.tialtngo@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "pegjs": "^0.10.0"
+  }
 }
