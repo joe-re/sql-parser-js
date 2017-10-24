@@ -1,4 +1,8 @@
 // @flow
 
 const parser = require('./peg/mysql.js');
-console.log(parser.parse('SELECT * FROM HOGE'));
+try {
+  console.log(parser.parse('SELECT WHER FROM HOGE'));
+} catch (e) {
+  console.log(e);
+}
