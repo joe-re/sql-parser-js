@@ -1,3 +1,13 @@
+{
+  function createList(head, tail) {
+    var result = [head];
+    for (var i = 0; i < tail.length; i++) {
+      result.push(tail[i][3]);
+    }
+    return result;
+  }
+}
+
 Start
   = Stmt
 
@@ -8,26 +18,21 @@ Stmt
 
 SelectStmt
   = _ SelectToken
-    _ x:SelectField xs:SelectFieldRest*
+    _ columns:SelectField
     _ FromToken
     _ from:Identifier
     _ where:WhereExpr? {
     return {
       type: "select",
-      columns: [x].concat(xs),
+      columns: columns,
       from: from,
       where: where
     };
   }
 
 SelectField "select valid field"
-  = Identifier
+  = Primary
   / Star
-
-SelectFieldRest
-  = _ SeparatorToken _ s:SelectField {
-    return s;
-  }
 
 WhereExpr "where expression"
   = WhereToken x:LogicExpr xs:LogicExprRest* {
@@ -64,6 +69,11 @@ Operator
   = "<>"       { return "Different"; }
   / "="        { return "Equal";     }
   / LikeToken  { return "Like";      }
+
+/* Clause */
+
+ColumnClause
+  = Star
 
 /* Expressions */
 
@@ -132,14 +142,124 @@ Rbrake = ']'
 
 Identifier "identifier"
   = !ReservedWord x:IdentStart xs:IdentRest* {
-    return x + xs.join('');
-  }
+      return x + xs.join('');
+    }
+  / '`' x:IdentStart xs:IdentRest* '`' {
+      return x + xs.join('');
+    }
 
 IdentStart
   = [a-z_]i
 
 IdentRest
   = [a-z0-9_]i
+
+Primary
+ = Literal
+ / ColumnRef
+
+ColumnRef
+  = tbl:Identifier _ Dot _ col:Identifier {
+      return {
+        type  : 'column_ref',
+        table : tbl,
+        column : col
+      };
+    }
+  / col:Identifier {
+      return {
+        type  : 'column_ref',
+        table : '',
+        column: col
+      };
+    }
+
+Literal
+  = LiteralString / LiteralNumeric / LiteralBool / LiteralNull
+
+LiteralList
+  = head:Literal tail:(_ Comma _ Literal)* {
+      return createList(head, tail);
+    }
+
+LiteralNull
+  = NULL_KW {
+      return {
+        type  : 'null',
+        value : null
+      };
+    }
+
+LiteralBool
+  = TRUE_KW {
+      return {
+        type  : 'bool',
+        value : true
+      };
+    }
+  / FALSE_KW {
+      return {
+        type  : 'bool',
+        value : false
+      };
+    }
+
+LiteralString
+  = ca:( ('"' DoubleChar* '"')
+        /("'" SingleChar* "'")) {
+      return {
+        type  : 'string',
+        value : ca[1].join('')
+      }
+    }
+
+SingleChar
+  = [^'\\\0-\x1F\x7f]
+  / EscapeChar
+
+DoubleChar
+  = [^"\\\0-\x1F\x7f]
+  / EscapeChar
+
+EscapeChar
+  = "\\'"  { return "'";  }
+  / '\\"'  { return '"';  }
+  / "\\\\" { return "\\"; }
+  / "\\/"  { return "/";  }
+  / "\\b"  { return "\b"; }
+  / "\\f"  { return "\f"; }
+  / "\\n"  { return "\n"; }
+  / "\\r"  { return "\r"; }
+  / "\\t"  { return "\t"; }
+  / "\\u" h1:HexDigit h2:HexDigit h3:HexDigit h4:HexDigit {
+      return String.fromCharCode(parseInt("0x" + h1 + h2 + h3 + h4));
+    }
+
+LiteralNumeric
+  = n:Number {
+      return {
+        type  : 'number',
+        value : n
+      }
+    }
+
+Number
+  = int_:Int frac:Frac _ { return parseFloat(int_ + frac); }
+  / int_:Int _ { return parseFloat(int_); }
+
+Int
+  = digits:Digits
+  / op:("-" / "+" ) digits:Digits { return op + digits; }
+  / op:("-" / "+" ) digits:Digits   { return op + digits; }
+
+Frac
+  = "." digits:Digits { return "." + digits; }
+
+Digits
+  = digits:[0-9]+ { return digits.join(""); }
+
+HexDigit
+  = [0-9a-fA-F]
 
 /* Skip */
 _
