@@ -12,6 +12,7 @@
     "ava": "^0.22.0"
   },
   "scripts": {
+    "peg": "pegjs peg/mysql.pegjs",
     "test": "ava"
   }
 }

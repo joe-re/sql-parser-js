@@ -130,13 +130,13 @@ AndToken
   = "AND"i !IdentRest
 
 /* Charactors */
-Dot    = '.'
-Comma  = ','
-Star   = '*'
-Lparen = '('
-Rparen = ')'
-Lbrake = '['
-Rbrake = ']'
+DotChar    = '.'
+CommaChar  = ','
+StarChar   = '*'
+LparenChar = '('
+RparenChar = ')'
+LbrakeChar = '['
+RbrakeChar = ']'
 
 /* Identifier */
 
@@ -154,12 +154,19 @@ IdentStart
 IdentRest
   = [a-z0-9_]i
 
+Star
+ = StarChar {
+   return {
+     type: 'star'
+   }
+ }
+
 Primary
  = Literal
  / ColumnRef
 
 ColumnRef
-  = tbl:Identifier _ Dot _ col:Identifier {
+  = tbl:Identifier _ DotChar _ col:Identifier {
       return {
         type  : 'column_ref',
         table : tbl,
@@ -178,7 +185,7 @@ Literal
   = LiteralString / LiteralNumeric / LiteralBool / LiteralNull
 
 LiteralList
-  = head:Literal tail:(_ Comma _ Literal)* {
+  = head:Literal tail:(_ CommaChar _ Literal)* {
       return createList(head, tail);
     }
 
