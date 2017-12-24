@@ -82,7 +82,8 @@ ColumnClause
 /* Expressions */
 
 Expr
-  = Float
+  = ColumnRef
+  / Float
   / Integer
   / Identifier
   / String

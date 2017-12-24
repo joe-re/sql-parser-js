@@ -23,13 +23,30 @@ test('using *', t => {
 
 test('where', t => {
   const result = parser.parse('SELECT * FROM HOGE WHERE 1 <= 1')
-  console.log(result.where)
   t.deepEqual(result, {
     type: 'select',
     columns: { type: 'star' },
     from: 'HOGE',
     where: {
       conditions: [ { left: 1, op: 'LessThanEqual', right: 1 } ]
+    }
+  });
+});
+
+test('column ref in where exp', t => {
+  const result = parser.parse('SELECT * FROM HOGE WHERE HOGE.hoge <= 1')
+  t.deepEqual(result, {
+    type: 'select',
+    columns: { type: 'star' },
+    from: 'HOGE',
+    where: {
+      conditions: [
+        {
+          left: { column: 'hoge', table: 'HOGE', type: 'column_ref' },
+          op: 'LessThanEqual',
+          right: 1
+        }
+      ]
     }
   });
 });
