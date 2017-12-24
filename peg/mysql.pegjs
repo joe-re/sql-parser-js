@@ -66,9 +66,13 @@ Joiner "joiner"
   / AndToken { return "And"; }
 
 Operator
-  = "<>"       { return "Different"; }
-  / "="        { return "Equal";     }
-  / LikeToken  { return "Like";      }
+  = "<>"       { return "Different";     }
+  / "<="       { return "LessThanEqual"; }
+  / ">="       { return "MoreThanEqual"; }
+  / "="        { return "Equal";         }
+  / "<"        { return "LessThan";      }
+  / ">"        { return "MoreThan";      }
+  / LikeToken  { return "Like";          }
 
 /* Clause */
 

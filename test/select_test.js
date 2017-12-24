@@ -20,3 +20,16 @@ test('using *', t => {
     where: null
   });
 });
+
+test('where', t => {
+  const result = parser.parse('SELECT * FROM HOGE WHERE 1 <= 1')
+  console.log(result.where)
+  t.deepEqual(result, {
+    type: 'select',
+    columns: { type: 'star' },
+    from: 'HOGE',
+    where: {
+      conditions: [ { left: 1, op: 'LessThanEqual', right: 1 } ]
+    }
+  });
+});
